@@ -1,0 +1,15 @@
+{
+  "name": "promptlab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "本地优先的提示词版本管理与 A/B 显著性检验工作台",
+  "scripts": {
+    "test": "node --test tests/template.test.mjs tests/diff.test.mjs tests/stats.test.mjs tests/store.test.mjs",
+    "demo": "node scripts/demo.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

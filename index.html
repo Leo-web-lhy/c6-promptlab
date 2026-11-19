@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PromptLab · 提示词 A/B 工作台</title>
+<meta name="description" content="本地优先的提示词版本管理与 A/B 显著性检验工具">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0f1115">
+<link rel="stylesheet" href="./src/ui/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">◆</span>
+    <span class="brand-text">PromptLab</span>
+    <span class="brand-sub">提示词 A/B 工作台</span>
+  </div>
+  <div class="topbar-actions">
+    <span id="backendBadge" class="badge" title="当前存储后端">存储：检测中</span>
+    <button id="btnExport" class="btn ghost" type="button">导出 JSON</button>
+    <label class="btn ghost" for="fileImport">导入 JSON</label>
+    <input id="fileImport" type="file" accept="application/json,.json" hidden>
+    <button id="btnClear" class="btn ghost danger" type="button">清空</button>
+  </div>
+</header>
+
+<div id="warningBar" class="warning" hidden></div>
+
+<main class="layout">
+  <aside class="panel sidebar" aria-label="提示词列表">
+    <div class="panel-head">
+      <input id="search" type="search" placeholder="搜索名称/正文/备注…" aria-label="搜索提示词">
+    </div>
+    <button id="btnNewPrompt" class="btn primary block" type="button">+ 新建提示词</button>
+    <ul id="promptList" class="list" role="listbox" aria-label="提示词"></ul>
+    <p id="emptyHint" class="empty">还没有提示词。新建一个，把正文里的 <code>{{变量}}</code> 写进去。</p>
+  </aside>
+
+  <section class="panel main-panel">
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="edit" aria-selected="true">1 · 编辑</button>
+      <button class="tab" role="tab" data-tab="run" aria-selected="false">2 · 运行</button>
+      <button class="tab" role="tab" data-tab="compare" aria-selected="false">3 · 对比</button>
+      <button class="tab" role="tab" data-tab="data" aria-selected="false">4 · 存档</button>
+    </div>
+
+    <!-- 1 编辑 -->
+    <div class="tabpane active" data-pane="edit">
+      <div class="row">
+        <input id="promptName" class="input grow" placeholder="提示词名称" aria-label="提示词名称">
+        <button id="btnRename" class="btn" type="button">改名</button>
+        <button id="btnDeletePrompt" class="btn ghost danger" type="button">删除</button>
+      </div>
+      <div class="versions" id="versionTabs"></div>
+      <div class="editor-wrap">
+        <textarea id="editor" spellcheck="false" placeholder="在这里写提示词正文，支持 {{变量名}} 占位符&#10;&#10;例：请把下面内容翻译成{{lang}}，保持专业语气：{{text}}"></textarea>
+        <div class="editor-meta" id="editorMeta">0 字符 · 0 行 · 0 个变量</div>
+      </div>
+      <div class="row">
+        <input id="versionNote" class="input grow" placeholder="这一版改了什么（可选，便于回看）" aria-label="版本说明">
+        <button id="btnSaveVersion" class="btn primary" type="button">保存为新版本</button>
+      </div>
+      <div class="vars" id="varsPanel"></div>
+    </div>
+
+    <!-- 2 运行 -->
+    <div class="tabpane" data-pane="run">
+      <div class="row">
+        <label class="lbl" for="runVersion">用哪个版本</label>
+        <select id="runVersion" class="input grow"></select>
+      </div>
+      <div id="runVars" class="vars"></div>
+      <div class="row">
+        <button id="btnRender" class="btn" type="button">渲染输出</button>
+      </div>
+      <pre id="runOutput" class="output" aria-live="polite">（点「渲染输出」查看结果）</pre>
+      <div class="row">
+        <label class="lbl" for="runScore">人工评分</label>
+        <select id="runScore" class="input">
+          <option value="1">1 · 差</option>
+          <option value="2">2 · 偏弱</option>
+          <option value="3" selected>3 · 可用</option>
+          <option value="4">4 · 好</option>
+          <option value="5">5 · 优秀</option>
+        </select>
+        <input id="runNote" class="input grow" placeholder="这次运行的备注（可选）" aria-label="运行备注">
+        <button id="btnLogRun" class="btn primary" type="button">记录这次运行</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="runsTable">
+          <thead><tr><th>时间</th><th>版本</th><th>分</th><th>备注</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3 对比 -->
+    <div class="tabpane" data-pane="compare">
+      <div class="row">
+        <label class="lbl" for="cmpA">A（对照）</label>
+        <select id="cmpA" class="input grow"></select>
+        <label class="lbl" for="cmpB">B（实验）</label>
+        <select id="cmpB" class="input grow"></select>
+        <button id="btnCompare" class="btn primary" type="button">计算差异</button>
+      </div>
+      <div id="cmpStats" class="stats-grid"></div>
+      <div id="cmpVerdict" class="verdict">两组各记录一次以上运行后，这里会给出 bootstrap 95% 置信区间结论。</div>
+      <h3 class="h3">正文差异</h3>
+      <div id="diffSummary" class="diff-summary"></div>
+      <div id="diffView" class="diff-view"></div>
+    </div>
+
+    <!-- 4 存档 -->
+    <div class="tabpane" data-pane="data">
+      <h3 class="h3">存储状态</h3>
+      <div id="dataInfo" class="data-info"></div>
+      <h3 class="h3">导出 / 导入</h3>
+      <p class="muted">导出为单个 JSON 文件，可在另一台机器导入恢复。导入会做完整结构与版本引用校验，损坏数据不会被写入。</p>
+      <div class="row">
+        <button id="btnExport2" class="btn" type="button">导出 JSON</button>
+        <label class="btn" for="fileImport2">导入 JSON</label>
+        <input id="fileImport2" type="file" accept="application/json,.json" hidden>
+      </div>
+      <h3 class="h3">自检</h3>
+      <p class="muted">核心模块的自检结果（在浏览器里实时跑一遍，确认部署版本与仓库代码一致）。</p>
+      <button id="btnSelfTest" class="btn" type="button">运行自检</button>
+      <pre id="selfTestOut" class="output small"></pre>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="./src/ui/app.js"></script>
+</body>
+</html>

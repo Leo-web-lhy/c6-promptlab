@@ -1,0 +1,19 @@
+{
+  "name": "PromptLab · 提示词 A/B 工作台",
+  "short_name": "PromptLab",
+  "description": "本地优先的提示词版本管理与 A/B 显著性检验工具：写版本、跑样本、看差异、算置信区间。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#0f1115",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
