@@ -3,6 +3,7 @@
 一个**本地优先**的提示词版本管理与 A/B 显著性检验工具。改提示词时最常见的两个动作是「存一版」和「这次比上次好多少」，但大多数人靠感觉判断。PromptLab 把这两件事变成可复算的记录：每个版本留快照、每次运行留评分、比较时给**置信区间**而不是直接给结论。
 
 - 在线使用：<https://leo-web-lhy.github.io/c6-promptlab/>
+- 源码仓库：<https://github.com/Leo-web-lhy/c6-promptlab>
 - 无需注册、无需后端：数据只存在你自己的浏览器 `localStorage`，可随时导出成 JSON 带走。
 
 ## 它解决什么
