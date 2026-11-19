@@ -84,6 +84,13 @@ docs/demo-output.txt    演示运行的真实输出
 - 本地 HTTP 冒烟：`/`、`/index.html`、`/src/ui/app.js`、`/src/ui/styles.css`、`/sw.js`、`/manifest.webmanifest`、`/src/core/store.js`、`/icon.svg` 全部 `200`。
 - 端到端演示：`node scripts/demo.mjs` → `DEMO_OK checks=7/7`，输出见 `docs/demo-output.txt`（含两版正文 diff、Δ 与置信区间）。
 
+## 交付物链接
+
+- app链接：<https://leo-web-lhy.github.io/c6-promptlab/>
+- repo链接：<https://github.com/Leo-web-lhy/c6-promptlab>
+- demo：`node scripts/demo.mjs` → 输出落盘 `docs/demo-output.txt`（48 行）
+- AI日志：`AI日志.md`；复盘：`AAR.md`
+
 ## 已知边界
 
 - 评分是人工打的主观分，工具只负责统计，不负责替你判断「什么算好」。
